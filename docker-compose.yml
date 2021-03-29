@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+    php:
+        image: php:7.3-alpine
+        command: sh -c "apk add composer && docker-php-ext-install pdo pdo_mysql && composer install && php artisan migrate && while true; do sleep 10; echo 'alive'; done;"
+        volumes: 
+            - $PWD:/usr/src/myapp
+        working_dir: "/usr/src/myapp"
+
+    mysql:
+        image: mysql:5.7
+        environment: 
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: homestead
+        ports: 
+            - "3306:3306"
