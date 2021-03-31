@@ -42,7 +42,7 @@ class QAndA extends Command
         do {
             $choice0 = $this->choice(
                 'Please choose a Q and A option',
-                ['Add questions and answers', 'Practice Questions', '<- exit']
+                ['Add questions and answers', 'Practice Questions', 'Reset Progress', '<- exit']
             );
 
             switch ($choice0) {
@@ -51,6 +51,10 @@ class QAndA extends Command
                     break;
                 case 'Practice Questions':
                     $this->practiceQuestions();
+                    break;
+                case 'Reset Progress':
+                    $this->call('qanda:reset');
+
                     break;
                 default:
                     break;

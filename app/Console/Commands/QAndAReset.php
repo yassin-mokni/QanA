@@ -46,6 +46,6 @@ class QAndAReset extends Command
             'is_correct' => 0,
         ]);
 
-        $this->info("all previous progresses has been removed");
+        $this->info("All previous progresses has been removed");
     }
 }
