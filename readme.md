@@ -1,4 +1,4 @@
-# [Demo video](https://drive.google.com/file/d/1Doh-Ewo0dg1dvKwJSQNlWnN_qe2PGkDT/view?usp=sharing)
+# [Demo video](https://youtu.be/KsbilHErIF4)
 
 # Installation guide
 
