@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Question;
+use Illuminate\Console\Command;
 
 class QAndAReset extends Command
 {
@@ -38,8 +38,12 @@ class QAndAReset extends Command
      */
     public function handle()
     {
-        Question::where('answered',1)->update([
-            'answered' => 0
+        Question::orWhere([
+            'answered' => 1,
+            'is_correct' => 1,
+        ])->update([
+            'answered' => 0,
+            'is_correct' => 0,
         ]);
 
         $this->info("all previous progresses has been removed");
