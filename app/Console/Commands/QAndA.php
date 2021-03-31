@@ -42,18 +42,17 @@ class QAndA extends Command
         do {
             $choice0 = $this->choice(
                 'Please choose a Q and A option',
-                ['Add questions and answers', 'View Questions', '<- exit']
+                ['Add questions and answers', 'Practice Questions', '<- exit']
             );
 
             switch ($choice0) {
                 case 'Add questions and answers':
                     $this->addQuestions();
                     break;
-                case 'View Questions':
-                    $this->viewQuestions();
+                case 'Practice Questions':
+                    $this->practiceQuestions();
                     break;
                 default:
-                    # code...
                     break;
             }
         } while ($choice0 != '<- exit');
@@ -83,27 +82,22 @@ class QAndA extends Command
 
         } while ($moreQuestions == 'yes');
     }
-    public function viewQuestions()
+    public function practiceQuestions()
     {
         $choice1 = null;
         //get list of questions
         $questions = Question::get();
         if (empty($questions->count())) {
             $this->error('No Questions Yet !');
-            $choice1 = '<-Back';
+            $choice1 = '<- Back';
         }
-        while ($choice1 != '<-Back') {
+        while ($choice1 != '<- Back') {
             //counting answered questions to fill the progress
             $answeredQuestionsCount = $questions->filter(fn($q) => $q->answered)->count();
 
-            $this->info('Your Current Progress : ');
-            $this->newLine();
-            $bar = $this->output->createProgressBar($questions->count());
-            $bar->start();
-            //wait 1 second for the progress bar to be filled
-            sleep(1);
-            $bar->advance($answeredQuestionsCount);
-            $this->newLine(2);
+            $this->showProgress($questions->count(), $answeredQuestionsCount);
+
+            $this->showFinalProgress($questions, $answeredQuestionsCount);
 
             $choice1 = $this->choice(
                 'Please choose a question to practice',
@@ -111,17 +105,46 @@ class QAndA extends Command
             );
 
             if ($choice1 != '<- Back') {
-                //get question answers
+                //save user answer
                 $userQuestionAnswer = $this->ask($choice1);
                 $rightQuestionAnswer = $questions->filter(fn($q) => $q->content == $choice1)->pop();
+
+                //save that the user has answered the question
+                $rightQuestionAnswer->answered = 1;
+
+                //increment score if correct
                 if ($userQuestionAnswer === $rightQuestionAnswer->answer->content) {
-                    //increment score
-                    $rightQuestionAnswer->answered = 1;
-                    $rightQuestionAnswer->save();
-                    $questions->fresh();
+                    $rightQuestionAnswer->is_correct = 1;
                 }
+                $rightQuestionAnswer->save();
+                $questions->fresh();
             }
 
+        }
+    }
+
+    public function showProgress(int $count = 0, int $answeredQuestionsCount = 0)
+    {
+        $this->info('Your Current Progress : ');
+        $this->newLine();
+        $bar = $this->output->createProgressBar($count);
+        $bar->start();
+        //wait 1 second for the progress bar to be filled
+        if ($answeredQuestionsCount > 0) {
+            sleep(1);
+            $bar->advance($answeredQuestionsCount);
+        }
+
+        $this->newLine(2);
+    }
+
+    public function showFinalProgress(iterable $questions, int $answeredQuestionsCount = 0)
+    {
+        //check if he completed the questions
+        if ($answeredQuestionsCount == $questions->count()) {
+            $correctQuestionsCount = $questions->filter(fn($q) => $q->is_correct)->count();
+            $this->info('And Your final Progress : ' . $correctQuestionsCount . " / " . $questions->count());
+            $this->newLine();
         }
     }
 }
